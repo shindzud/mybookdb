@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кладбище Историй | Horror Book Writer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'swamp': {
+                            50: '#f7f8f7',
+                            100: '#e3e6e2',
+                            200: '#c7cdc4',
+                            300: '#a4b09f',
+                            400: '#7d8a77',
+                            500: '#5f6b58',
+                            600: '#4a5544',
+                            700: '#3d4539',
+                            800: '#343930',
+                            900: '#2d3029',
+                            950: '#1a1c18'
+                        },
+                        'mud': {
+                            50: '#f6f5f3',
+                            100: '#ebe8e2',
+                            200: '#d8d2c4',
+                            300: '#bfb49e',
+                            400: '#a69077',
+                            500: '#96785d',
+                            600: '#886351',
+                            700: '#725045',
+                            800: '#5e433c',
+                            900: '#4e3832',
+                            950: '#2a1d19'
+                        },
+                        'shadow': {
+                            50: '#f6f6f6',
+                            100: '#e7e7e7',
+                            200: '#d1d1d1',
+                            300: '#b0b0b0',
+                            400: '#888888',
+                            500: '#6d6d6d',
+                            600: '#5d5d5d',
+                            700: '#4f4f4f',
+                            800: '#454545',
+                            900: '#3d3d3d',
+                            950: '#262626'
+                        },
+                        'blood': '#8B0000',
+                        'bone': '#F5F5DC'
+                    },
+                    fontFamily: {
+                        'creepy': ['Creepster', 'cursive'],
+                        'gothic': ['Cinzel', 'serif'],
+                        'mono': ['Courier New', 'monospace']
+                    },
+                    animation: {
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'float': 'float 3s ease-in-out infinite',
+                        'flicker': 'flicker 1.5s infinite',
+                        'secret-pulse': 'secretPulse 3s ease-in-out infinite',
+                        'hint-glow': 'hintGlow 2s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px rgba(139, 0, 0, 0.5)' },
+                            '100%': { boxShadow: '0 0 20px rgba(139, 0, 0, 0.8)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        flicker: {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.7 }
+                        },
+                        secretPulse: {
+                            '0%, 100%': { opacity: 0.3, transform: 'scale(1)' },
+                            '50%': { opacity: 0.8, transform: 'scale(1.05)' }
+                        },
+                        hintGlow: {
+                            '0%, 100%': { textShadow: '0 0 5px rgba(245, 245, 220, 0.5)' },
+                            '50%': { textShadow: '0 0 15px rgba(245, 245, 220, 0.9)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1c18 0%, #2d3029 25%, #343930 50%, #2d3029 75%, #1a1c18 100%);
+            background-attachment: fixed;
+        }
+        
+        .swamp-gradient {
+            background: linear-gradient(135deg, #3d4539 0%, #4a5544 50%, #5f6b58 100%);
+        }
+        
+        .mud-frame {
+            background: linear-gradient(45deg, #2a1d19 0%, #4e3832 50%, #2a1d19 100%);
+            border: 2px solid #725045;
+        }
+        
+        .secret-element {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .secret-element:hover {
+            color: #F5F5DC !important;
+            text-shadow: 0 0 10px rgba(245, 245, 220, 0.8);
+        }
+        
+        .hint-found {
+            background: linear-gradient(45deg, #8B0000, #F5F5DC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: hintGlow 2s infinite;
+        }
+        
+        .scroll-dark::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .scroll-dark::-webkit-scrollbar-track {
+            background: #262626;
+        }
+        
+        .scroll-dark::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #5f6b58, #725045);
+            border-radius: 4px;
+        }
+        
+        .notification-dot {
+            width: 8px;
+            height: 8px;
+            background: #8B0000;
+            border-radius: 50%;
+            animation: glow 2s infinite;
+        }
+        
+        .typing-effect::after {
+            content: '|';
+            animation: flicker 1s infinite;
+            color: #8B0000;
+        }
+    </style>
+</head>
+<body class="bg-swamp-950 text-bone font-mono min-h-screen">
+    <!-- Floating atmospheric elements -->
+    <div id="atmosphere" class="fixed inset-0 pointer-events-none z-0">
+        <div class="absolute top-10 left-10 text-shadow-700 opacity-20 animate-float" style="animation-delay: 0s;">💀</div>
+        <div class="absolute top-32 right-20 text-shadow-700 opacity-20 animate-float" style="animation-delay: 1s;">🕷️</div>
+        <div class="absolute bottom-32 left-32 text-shadow-700 opacity-20 animate-float" style="animation-delay: 2s;">🦇</div>
+    </div>
+
+    <!-- Header -->
+    <header class="mud-frame p-4 relative z-10">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-2xl md:text-3xl font-creepy text-blood animate-glow">
+                    🏚️ КЛАДБИЩЕ ИСТОРИЙ
+                </h1>
+                <div class="animate-float text-shadow-600">💀</div>
+                <!-- Secret element for admin access -->
+                <div class="secret-element text-xs opacity-30 hover:opacity-100" id="secretDoor">
+                    ⚰️
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 md:space-x-4">
+                <div id="hintsIndicator" class="hidden">
+                    <div class="notification-dot"></div>
+                </div>
+                <span class="text-sm text-swamp-400" id="wordCount">Слов: 0</span>
+                <button id="saveBtn" class="px-3 py-2 bg-swamp-800 hover:bg-swamp-700 border border-mud-600 rounded transition-all text-sm">
+                    💾 Сохранить
+                </button>
+                <button id="adminToggle" class="hidden px-3 py-2 bg-blood hover:bg-red-700 rounded transition-all text-xs">
+                    👁️ Админ
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-swamp-900 border border-blood rounded-lg p-6 max-w-2xl w-full animate-glow">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-creepy text-blood">🕷️ ПАНЕЛЬ АДМИНИСТРАТОРА</h2>
+                    <button id="closeAdmin" class="text-blood hover:text-red-400 text-xl">✕</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Bot Configuration -->
+                    <div class="space-y-4">
+                        <h3 class="text-mud-300 font-bold">Настройки Бота</h3>
+                        <div>
+                            <label class="block text-swamp-400 mb-2">Bot Token:</label>
+                            <input type="password" id="botToken" class="w-full bg-shadow-800 text-bone p-2 rounded border border-mud-600 text-base" placeholder="Введите токен...">
+                        </div>
+                        <div>
+                            <label class="block text-swamp-400 mb-2">Chat ID:</label>
+                            <input type="text" id="chatId" class="w-full bg-shadow-800 text-bone p-2 rounded border border-mud-600 text-base" placeholder="Введите ID чата...">
+                        </div>
+                        <button id="saveConfig" class="w-full bg-blood hover:bg-red-700 text-bone p-2 rounded">
+                            💀 Сохранить
+                        </button>
+                    </div>
+                    
+                    <!-- Hints Management -->
+                    <div class="space-y-4">
+                        <h3 class="text-mud-300 font-bold">Управление Подсказками</h3>
+                        <div>
+                            <label class="block text-swamp-400 mb-2">Текст подсказки:</label>
+                            <textarea id="hintText" class="w-full bg-shadow-800 text-bone p-2 rounded border border-mud-600 text-base h-20" placeholder="Введите скрытое послание..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-swamp-400 mb-2">Trigger слово:</label>
+                            <input type="text" id="hintTrigger" class="w-full bg-shadow-800 text-bone p-2 rounded border border-mud-600 text-base" placeholder="Слово для активации...">
+                        </div>
+                        <button id="addHint" class="w-full bg-swamp-700 hover:bg-swamp-600 text-bone p-2 rounded">
+                            🔮 Добавить Подсказку
+                        </button>
+                        
+                        <!-- Hints List -->
+                        <div class="max-h-32 overflow-y-auto scroll-dark">
+                            <div id="hintsList" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Statistics -->
+                <div class="mt-6 pt-6 border-t border-mud-600">
+                    <h3 class="text-mud-300 font-bold mb-4">Статистика</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div>
+                            <div class="text-bone text-lg" id="totalPages">0</div>
+                            <div class="text-swamp-400 text-xs">Страниц</div>
+                        </div>
+                        <div>
+                            <div class="text-bone text-lg" id="totalWords">0</div>
+                            <div class="text-swamp-400 text-xs">Слов</div>
+                        </div>
+                        <div>
+                            <div class="text-bone text-lg" id="hintsFound">0</div>
+                            <div class="text-swamp-400 text-xs">Найдено подсказок</div>
+                        </div>
+                        <div>
+                            <div class="text-bone text-lg" id="totalHints">0</div>
+                            <div class="text-swamp-400 text-xs">Всего подсказок</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-full md:w-80 swamp-gradient border-r-2 border-mud-600 overflow-y-auto scroll-dark sidebar-mobile">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-gothic font-semibold text-mud-300">📜 Мрачные Страницы</h2>
+                    <button id="addPageBtn" class="px-3 py-2 bg-shadow-800 hover:bg-shadow-700 border border-mud-600 rounded transition-all text-sm animate-float">
+                        ➕ Создать
+                    </button>
+                </div>
+                <div id="pagesList" class="space-y-2">
+                    <!-- Pages will be added here -->
+                </div>
+                
+                <!-- Hidden hints indicator -->
+                <div id="sidebarHints" class="mt-6 pt-4 border-t border-mud-700">
+                    <h3 class="text-mud-400 text-sm mb-2">🔍 Найденные Тайны</h3>
+                    <div id="foundHintsList" class="space-y-1 text-xs"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <main class="flex-1 flex flex-col">
+            <!-- Page controls -->
+            <div class="mud-frame p-4">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="flex-1">
+                        <input 
+                            type="text" 
+                            id="pageTitle" 
+                            placeholder="Название истории ужаса..."
+                            class="w-full bg-shadow-800 text-bone p-3 rounded border border-mud-600 focus:outline-none focus:border-blood text-base"
+                        >
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <!-- Simplified reactions -->
+                        <div class="flex items-center space-x-2">
+                            <button id="likeBtn" class="flex items-center space-x-1 px-3 py-2 bg-swamp-800 hover:bg-swamp-700 border border-mud-600 rounded transition-all">
+                                <span>👍</span>
+                                <span id="likeCount">0</span>
+                            </button>
+                            <button id="dislikeBtn" class="flex items-center space-x-1 px-3 py-2 bg-shadow-800 hover:bg-shadow-700 border border-mud-600 rounded transition-all">
+                                <span>👎</span>
+                                <span id="dislikeCount">0</span>
+                            </button>
+                        </div>
+                        <button id="sendStarsBtn" class="px-4 py-2 bg-blood hover:bg-red-700 rounded text-bone">
+                            ⭐ Отправить
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Writing area -->
+            <div class="flex-1 p-4">
+                <div class="h-full relative">
+                    <textarea 
+                        id="pageContent"
+                        placeholder="Здесь начинается ваш кошмар... Попробуйте найти скрытые послания..."
+                        class="w-full h-full bg-shadow-900 text-bone p-4 rounded border border-mud-600 focus:outline-none focus:border-blood resize-none text-base leading-relaxed scroll-dark typing-effect"
+                    ></textarea>
+                    
+                    <!-- Hint overlay -->
+                    <div id="hintOverlay" class="absolute top-4 right-4 hidden bg-swamp-800 border border-blood rounded p-3 max-w-xs animate-glow">
+                        <div class="text-bone text-sm" id="hintContent"></div>
+                        <button id="closeHint" class="absolute top-1 right-2 text-blood hover:text-red-400">×</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile controls -->
+    <div class="fixed bottom-4 left-4 md:hidden">
+        <button id="sidebarToggle" class="bg-swamp-700 hover:bg-swamp-600 p-3 rounded-full shadow-lg transition-all animate-float">
+            📜
+        </button>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toast" class="fixed top-4 right-4 bg-shadow-800 border border-blood text-bone px-6 py-3 rounded shadow-lg transform translate-x-full transition-transform duration-300 z-40">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        class HorrorBookWriter {
+            constructor() {
+                this.pages = [];
+                this.currentPageId = null;
+                this.hints = [];
+                this.foundHints = [];
+                this.config = {
+                    botToken: '',
+                    chatId: '',
+                    adminAccess: false
+                };
+                
+                this.initializeElements();
+                this.bindEvents();
+                this.loadData();
+                this.setupSecretAccess();
+                
+                if (this.pages.length === 0) {
+                    this.addPage();
+                }
+            }
+            
+            initializeElements() {
+                // Main elements
+                this.sidebar = document.getElementById('sidebar');
+                this.sidebarToggle = document.getElementById('sidebarToggle');
+                this.pagesList = document.getElementById('pagesList');
+                this.pageTitle = document.getElementById('pageTitle');
+                this.pageContent = document.getElementById('pageContent');
+                this.wordCountDisplay = document.getElementById('wordCount');
+                this.addPageBtn = document.getElementById('addPageBtn');
+                this.saveBtn = document.getElementById('saveBtn');
+                this.toast = document.getElementById('toast');
+                this.toastMessage = document.getElementById('toastMessage');
+                
+                // Reaction elements
+                this.likeBtn = document.getElementById('likeBtn');
+                this.dislikeBtn = document.getElementById('dislikeBtn');
+                this.likeCount = document.getElementById('likeCount');
+                this.dislikeCount = document.getElementById('dislikeCount');
+                this.sendStarsBtn = document.getElementById('sendStarsBtn');
+                
+                // Admin elements
+                this.secretDoor = document.getElementById('secretDoor');
+                this.adminToggle = document.getElementById('adminToggle');
+                this.adminPanel = document.getElementById('adminPanel');
+                this.closeAdmin = document.getElementById('closeAdmin');
+                this.botToken = document.getElementById('botToken');
+                this.chatId = document.getElementById('chatId');
+                this.saveConfig = document.getElementById('saveConfig');
+                
+                // Hints elements
+                this.hintText = document.getElementById('hintText');
+                this.hintTrigger = document.getElementById('hintTrigger');
+                this.addHint = document.getElementById('addHint');
+                this.hintsList = document.getElementById('hintsList');
+                this.hintOverlay = document.getElementById('hintOverlay');
+                this.hintContent = document.getElementById('hintContent');
+                this.closeHint = document.getElementById('closeHint');
+                this.foundHintsList = document.getElementById('foundHintsList');
+                this.hintsIndicator = document.getElementById('hintsIndicator');
+                
+                // Stats elements
+                this.stats = {
+                    totalPages: document.getElementById('totalPages'),
+                    totalWords: document.getElementById('totalWords'),
+                    hintsFound: document.getElementById('hintsFound'),
+                    totalHints: document.getElementById('totalHints')
+                };
+            }
+            
+            bindEvents() {
+                // Main functionality
+                this.addPageBtn.addEventListener('click', () => this.addPage());
+                this.saveBtn.addEventListener('click', () => this.saveData());
+                this.sidebarToggle.addEventListener('click', () => this.toggleSidebar());
+                this.sendStarsBtn.addEventListener('click', () => this.sendStars());
+                
+                // Content updates
+                this.pageTitle.addEventListener('input', () => this.updateCurrentPage());
+                this.pageContent.addEventListener('input', () => {
+                    this.updateCurrentPage();
+                    this.updateWordCount();
+                    this.checkForHints();
+                });
+                
+                // Reactions
+                this.likeBtn.addEventListener('click', () => this.addReaction('like'));
+                this.dislikeBtn.addEventListener('click', () => this.addReaction('dislike'));
+                
+                // Admin functionality
+                this.secretDoor.addEventListener('click', () => this.attemptAdminAccess());
+                this.adminToggle.addEventListener('click', () => this.showAdminPanel());
+                this.closeAdmin.addEventListener('click', () => this.hideAdminPanel());
+                this.saveConfig.addEventListener('click', () => this.saveConfiguration());
+                this.addHint.addEventListener('click', () => this.createHint());
+                this.closeHint.addEventListener('click', () => this.hideHint());
+                
+                // Auto-save
+                setInterval(() => this.saveData(), 30000);
+                
+                // Admin panel outside click
+                this.adminPanel.addEventListener('click', (e) => {
+                    if (e.target === this.adminPanel) {
+                        this.hideAdminPanel();
+                    }
+                });
+            }
+            
+            setupSecretAccess() {
+                // Method 1: Click sequence on secret door
+                let clickCount = 0;
+                this.secretDoor.addEventListener('click', () => {
+                    clickCount++;
+                    if (clickCount === 3) {
+                        this.config.adminAccess = true;
+                        this.adminToggle.classList.remove('hidden');
+                        this.showToast('🕷️ Тайный доступ получен...');
+                        clickCount = 0;
+                    }
+                });
+                
+                // Method 2: Keyboard sequence
+                let sequence = '';
+                document.addEventListener('keydown', (e) => {
+                    sequence += e.key.toLowerCase();
+                    if (sequence.includes('cemetery')) {
+                        this.config.adminAccess = true;
+                        this.adminToggle.classList.remove('hidden');
+                        this.showToast('💀 Административный доступ разблокирован!');
+                        sequence = '';
+                    }
+                    if (sequence.length > 20) sequence = '';
+                });
+                
+                // Method 3: Writing specific phrase
+                this.pageContent.addEventListener('input', () => {
+                    if (this.pageContent.value.toLowerCase().includes('открой врата тьмы')) {
+                        this.config.adminAccess = true;
+                        this.adminToggle.classList.remove('hidden');
+                        this.showToast('⚰️ Врата администратора открыты!');
+                    }
+                });
+            }
+            
+            attemptAdminAccess() {
+                const attempts = ['💀', '🕷️', '⚰️', '👁️'];
+                const currentIcon = this.secretDoor.textContent;
+                const nextIndex = (attempts.indexOf(currentIcon) + 1) % attempts.length;
+                this.secretDoor.textContent = attempts[nextIndex];
+                
+                if (nextIndex === 0) { // Completed full cycle
+                    this.config.adminAccess = true;
+                    this.adminToggle.classList.remove('hidden');
+                    this.showToast('👁️ Скрытый доступ активирован!');
+                }
+            }
+            
+            createHint() {
+                const text = this.hintText.value.trim();
+                const trigger = this.hintTrigger.value.trim().toLowerCase();
+                
+                if (!text || !trigger) {
+                    this.showToast('⚠️ Заполните все поля подсказки');
+                    return;
+                }
+                
+                const hint = {
+                    id: Date.now(),
+                    text: text,
+                    trigger: trigger,
+                    found: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.hints.push(hint);
+                this.renderHintsList();
+                this.updateStats();
+                
+                this.hintText.value = '';
+                this.hintTrigger.value = '';
+                
+                this.showToast('🔮 Тайна добавлена в мир...');
+            }
+            
+            checkForHints() {
+                const content = this.pageContent.value.toLowerCase();
+                
+                this.hints.forEach(hint => {
+                    if (!hint.found && content.includes(hint.trigger)) {
+                        hint.found = true;
+                        this.foundHints.push({
+                            ...hint,
+                            foundAt: new Date().toISOString(),
+                            pageId: this.currentPageId
+                        });
+                        
+                        this.showHint(hint.text);
+                        this.renderFoundHints();
+                        this.updateStats();
+                        this.showToast(`🔍 Тайна найдена: "${hint.trigger}"`);
+                    }
+                });
+            }
+            
+            showHint(text) {
+                this.hintContent.textContent = text;
+                this.hintOverlay.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    this.hideHint();
+                }, 5000);
+            }
+            
+            hideHint() {
+                this.hintOverlay.classList.add('hidden');
+            }
+            
+            renderHintsList() {
+                this.hintsList.innerHTML = '';
+                
+                this.hints.forEach(hint => {
+                    const hintElement = document.createElement('div');
+                    hintElement.className = `p-2 bg-shadow-900 rounded border border-mud-700 ${hint.found ? 'opacity-50' : ''}`;
+                    hintElement.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <div class="text-xs text-swamp-400">Trigger: "${hint.trigger}"</div>
+                                <div class="text-xs text-bone mt-1">${hint.text}</div>
+                                <div class="text-xs text-mud-500 mt-1">${hint.found ? '✅ Найдена' : '⏳ Скрыта'}</div>
+                            </div>
+                            <button class="text-blood hover:text-red-400 text-xs ml-2" onclick="app.deleteHint(${hint.id})">🗑️</button>
+                        </div>
+                    `;
+                    this.hintsList.appendChild(hintElement);
+                });
+            }
+            
+            renderFoundHints() {
+                this.foundHintsList.innerHTML = '';
+                
+                this.foundHints.forEach(hint => {
+                    const hintElement = document.createElement('div');
+                    hintElement.className = 'text-bone text-xs p-1 bg-shadow-800 rounded hint-found';
+                    hintElement.textContent = `🔮 ${hint.trigger}`;
+                    this.foundHintsList.appendChild(hintElement);
+                });
+                
+                if (this.foundHints.length > 0) {
+                    this.hintsIndicator.classList.remove('hidden');
+                }
+            }
+            
+            deleteHint(hintId) {
+                this.hints = this.hints.filter(hint => hint.id !== hintId);
+                this.renderHintsList();
+                this.updateStats();
+                this.showToast('🕷️ Тайна стерта из реальности');
+            }
+            
+            addPage() {
+                const pageId = `page_${Date.now()}`;
+                const darkTitles = [
+                    'Забытые Тени',
+                    'Мрачные Воспоминания',
+                    'Болотные Тайны',
+                    'Последний Вздох',
+                    'Проклятый Дневник'
+                ];
+                
+                const page = {
+                    id: pageId,
+                    title: darkTitles[Math.floor(Math.random() * darkTitles.length)] + ` ${this.pages.length + 1}`,
+                    content: '',
+                    reactions: { likes: 0, dislikes: 0 },
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.pages.push(page);
+                this.renderPagesList();
+                this.selectPage(pageId);
+                this.showToast('📜 Новая страница создана');
+                this.updateStats();
+            }
+            
+            deletePage(pageId) {
+                if (this.pages.length <= 1) {
+                    this.showToast('💀 Нельзя удалить последнюю страницу');
+                    return;
+                }
+                
+                const index = this.pages.findIndex(p => p.id === pageId);
+                if (index !== -1) {
+                    this.pages.splice(index, 1);
+                    
+                    if (this.currentPageId === pageId) {
+                        const newIndex = Math.min(index, this.pages.length - 1);
+                        this.selectPage(this.pages[newIndex].id);
+                    }
+                    
+                    this.renderPagesList();
+                    this.showToast('🕷️ Страница погружена во тьму');
+                    this.updateStats();
+                }
+            }
+            
+            selectPage(pageId) {
+                const page = this.pages.find(p => p.id === pageId);
+                if (!page) return;
+                
+                this.currentPageId = pageId;
+                this.pageTitle.value = page.title;
+                this.pageContent.value = page.content;
+                
+                this.renderPagesList();
+                this.updateReactionDisplay();
+                this.updateWordCount();
+                
+                if (window.innerWidth < 768) {
+                    this.sidebar.classList.remove('open');
+                }
+            }
+            
+            updateCurrentPage() {
+                const page = this.pages.find(p => p.id === this.currentPageId);
+                if (!page) return;
+                
+                page.title = this.pageTitle.value || `Безымянная История ${this.pages.indexOf(page) + 1}`;
+                page.content = this.pageContent.value;
+                
+                this.renderPagesList();
+                this.updateStats();
+            }
+            
+            addReaction(type) {
+                const page = this.pages.find(p => p.id === this.currentPageId);
+                if (!page) return;
+                
+                if (type === 'like') {
+                    page.reactions.likes++;
+                    this.showToast('👍 Душа одобряет...');
+                } else {
+                    page.reactions.dislikes++;
+                    this.showToast('👎 Душа отвергает...');
+                }
+                
+                this.updateReactionDisplay();
+                this.createFloatingReaction(type === 'like' ? '👍' : '👎');
+            }
+            
+            updateReactionDisplay() {
+                const page = this.pages.find(p => p.id === this.currentPageId);
+                if (!page) return;
+                
+                this.likeCount.textContent = page.reactions.likes;
+                this.dislikeCount.textContent = page.reactions.dislikes;
+            }
+            
+            createFloatingReaction(emoji) {
+                const floating = document.createElement('div');
+                floating.textContent = emoji;
+                floating.className = 'fixed text-2xl pointer-events-none z-50 animate-float';
+                floating.style.left = Math.random() * window.innerWidth + 'px';
+                floating.style.top = window.innerHeight + 'px';
+                
+                document.body.appendChild(floating);
+                
+                setTimeout(() => {
+                    floating.style.transform = `translateY(-${window.innerHeight + 100}px)`;
+                    floating.style.transition = 'transform 2s ease-out, opacity 2s ease-out';
+                    floating.style.opacity = '0';
+                }, 100);
+                
+                setTimeout(() => {
+                    if (floating.parentNode) {
+                        floating.parentNode.removeChild(floating);
+                    }
+                }, 2100);
+            }
+            
+            async sendStars() {
+                if (!this.config.botToken || !this.config.chatId) {
+                    this.showToast('⚠️ Настройте бота в админ панели');
+                    return;
+                }
+                
+                const currentPage = this.pages.find(p => p.id === this.currentPageId);
+                if (!currentPage) return;
+                
+                try {
+                    const message = `🌟 НОВАЯ ИСТОРИЯ ОТПРАВЛЕНА! 🌟\n\n` +
+                        `📖 Название: "${currentPage.title}"\n` +
+                        `📝 Слов: ${this.getWordCount(currentPage.content)}\n` +
+                        `👍 Лайков: ${currentPage.reactions.likes}\n` +
+                        `👎 Дизлайков: ${currentPage.reactions.dislikes}\n` +
+                        `🔮 Найдено тайн: ${this.foundHints.length}\n` +
+                        `⏰ Время: ${new Date().toLocaleString('ru-RU')}\n\n` +
+                        `✨ Отправлено из Кладбища Историй`;
+                    
+                    const response = await fetch(`https://api.telegram.org/bot${this.config.botToken}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: this.config.chatId,
+                            text: message
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        this.showToast('⭐ Звезды отправлены!');
+                        this.createStarsAnimation();
+                    } else {
+                        throw new Error('Ошибка отправки');
+                    }
+                } catch (error) {
+                    console.error('Error sending stars:', error);
+                    this.showToast('💀 Ошибка отправки');
+                }
+            }
+            
+            createStarsAnimation() {
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const star = document.createElement('div');
+                        star.textContent = '⭐';
+                        star.className = 'fixed text-xl pointer-events-none z-50 animate-float';
+                        star.style.left = Math.random() * window.innerWidth + 'px';
+                        star.style.top = Math.random() * window.innerHeight + 'px';
+                        
+                        document.body.appendChild(star);
+                        
+                        setTimeout(() => {
+                            if (star.parentNode) {
+                                star.parentNode.removeChild(star);
+                            }
+                        }, 2000);
+                    }, i * 150);
+                }
+            }
+            
+            renderPagesList() {
+                this.pagesList.innerHTML = '';
+                
+                this.pages.forEach((page, index) => {
+                    const pageElement = document.createElement('div');
+                    pageElement.className = `page-item group relative p-3 rounded border cursor-pointer transition-all duration-300 ${
+                        page.id === this.currentPageId 
+                            ? 'bg-shadow-800 border-blood animate-glow' 
+                            : 'bg-shadow-900 border-mud-700 hover:bg-shadow-800'
+                    }`;
+                    
+                    pageElement.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-sm font-medium text-mud-300 truncate">${page.title}</h3>
+                                <p class="text-xs text-swamp-400 mt-1">
+                                    ${this.getWordCount(page.content)} слов
+                                </p>
+                                <div class="flex space-x-2 mt-2 text-xs">
+                                    <span class="text-green-400">👍 ${page.reactions.likes}</span>
+                                    <span class="text-red-400">👎 ${page.reactions.dislikes}</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col space-y-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="delete-page text-blood hover:text-red-400 text-xs p-1" data-page-id="${page.id}">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    pageElement.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('delete-page')) {
+                            e.stopPropagation();
+                            this.deletePage(e.target.dataset.pageId);
+                        } else {
+                            this.selectPage(page.id);
+                        }
+                    });
+                    
+                    this.pagesList.appendChild(pageElement);
+                });
+            }
+            
+            getWordCount(text) {
+                return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            }
+            
+            updateWordCount() {
+                const wordCount = this.getWordCount(this.pageContent.value);
+                this.wordCountDisplay.textContent = `Слов: ${wordCount}`;
+            }
+            
+            updateStats() {
+                const totalWords = this.pages.reduce((sum, page) => sum + this.getWordCount(page.content), 0);
+                this.stats.totalPages.textContent = this.pages.length;
+                this.stats.totalWords.textContent = totalWords;
+                this.stats.hintsFound.textContent = this.foundHints.length;
+                this.stats.totalHints.textContent = this.hints.length;
+            }
+            
+            toggleSidebar() {
+                this.sidebar.classList.toggle('open');
+            }
+            
+            showAdminPanel() {
+                this.adminPanel.classList.remove('hidden');
+                this.botToken.value = this.config.botToken;
+                this.chatId.value = this.config.chatId;
+                this.renderHintsList();
+                this.updateStats();
+            }
+            
+            hideAdminPanel() {
+                this.adminPanel.classList.add('hidden');
+            }
+            
+            saveConfiguration() {
+                this.config.botToken = this.botToken.value;
+                this.config.chatId = this.chatId.value;
+                this.saveData();
+                this.hideAdminPanel();
+                this.showToast('🕷️ Конфигурация сохранена');
+            }
+            
+            saveData() {
+                const data = {
+                    pages: this.pages,
+                    currentPageId: this.currentPageId,
+                    config: this.config,
+                    hints: this.hints,
+                    foundHints: this.foundHints
+                };
+                
+                // Save to localStorage as fallback
+                localStorage.setItem('horror_book_data', JSON.stringify(data));
+                
+                console.log('Saving data:', data);
+                this.showToast('💾 Данные сохранены в тенях...');
+            }
+            
+            loadData() {
+                try {
+                    const data = localStorage.getItem('horror_book_data');
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        this.pages = parsed.pages || [];
+                        this.currentPageId = parsed.currentPageId;
+                        this.config = { ...this.config, ...parsed.config };
+                        this.hints = parsed.hints || [];
+                        this.foundHints = parsed.foundHints || [];
+                        
+                        this.renderPagesList();
+                        this.renderFoundHints();
+                        if (this.currentPageId) {
+                            this.selectPage(this.currentPageId);
+                        }
+                        if (this.config.adminAccess) {
+                            this.adminToggle.classList.remove('hidden');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                }
+            }
+            
+            showToast(message) {
+                this.toastMessage.textContent = message;
+                this.toast.classList.remove('translate-x-full');
+                
+                setTimeout(() => {
+                    this.toast.classList.add('translate-x-full');
+                }, 3000);
+            }
+        }
+        
+        // Global app instance for admin functions
+        let app;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new HorrorBookWriter();
+            
+            // Add mobile sidebar styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @media (max-width: 768px) {
+                    .sidebar-mobile {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        height: 100vh;
+                        z-index: 40;
+                        transform: translateX(-100%);
+                        transition: transform 0.3s ease-in-out;
+                    }
+                    .sidebar-mobile.open {
+                        transform: translateX(0);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
